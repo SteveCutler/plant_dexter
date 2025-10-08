@@ -39,4 +39,37 @@ I copied these rows into a new csv with all the columns including common names, 
 
 Next step: working on embedding these vectors using the biotrove clip model and probably a fine tune train on the top layers. My goal is 95% top-5 accuracy with low on device latency.
 
+A fine tune train on my Ontario dataset will be necessary I believe - even though biotrove is trained on a lot of plant etc data already - because I want very specific identifications, as opposed to generic ones like "fern", "apple tree" etc, I want taxnomic level detail, for example to determine if something is poisonous or edible, or a tick is a harmless wood tick or one that carries lyme disease.
+
 ##
+
+Alright - I have succesfully pulled at least 100 images for all 2355 ontario native plant classes in db EXCEPT for 21 class, listed below:
+
+species,image_count
+carex_marina,18
+rosa_hugonis,26
+euphrasia_tetraquetra,35
+carex_salina,37
+erigeron_elatus,46
+puccinellia_fasciculata,46
+carex_recta,47
+polygonum_fowleri,50
+salicornia_maritima,62
+nymphaea_leibergii,65
+potamogeton_strictifolius,69
+rubus_repens,69
+stuckenia_vaginata,74
+zoysia_japonica,74
+pilosella_flagellaris,81
+puccinellia_phryganodes,82
+dupontia_fisheri,89
+carex_mackenziei,90
+primula_stricta,94
+rorippa_curvipes,95
+carex_glacialis,97
+
+I think this should be alright, and I may compensate at training time with image augmentation, or worst case will try to find more images manually to counter this discrepency.
+
+##
+
+Embeddings has gone smoothly. I used the open clip biotrove pretrained model, encoding image embeddings on the GPU and text embeddings on the CPU as there is apparently a bug that prevents you from encoding text on MPS
