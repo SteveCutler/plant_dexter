@@ -3,3 +3,5 @@ test.py
 /data/
 *.csv
 embeddings/
+model building/biotrove_fine_tune.py
+checkpoints/

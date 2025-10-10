@@ -72,4 +72,4 @@ I think this should be alright, and I may compensate at training time with image
 
 ##
 
-Embeddings has gone smoothly. I used the open clip biotrove pretrained model, encoding image embeddings on the GPU and text embeddings on the CPU as there is apparently a bug that prevents you from encoding text on MPS
+Fine tuning biotrove clip model on my dataset, taking approx. 12.5 hours

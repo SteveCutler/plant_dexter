@@ -6,6 +6,7 @@ import open_clip
 import pandas as pd
 import numpy as np
 import os
+import copy
 
 ## Setup
 CSV_PATH = "data/plantdex_clip_pairs.csv"
@@ -14,11 +15,16 @@ BATCH_SIZE = 32
 DEVICE = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu" ## set to run on metal by default
 
 ## load model
-print(f"Loading model '{MODEL_NAME}' on {DEVICE}...")
-model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms(MODEL_NAME)
+model_full, preprocess_train, preprocess_val = open_clip.create_model_and_transforms(MODEL_NAME)
 tokenizer = open_clip.get_tokenizer(MODEL_NAME)
-model = model.to(DEVICE)
-model.eval()
+
+# Create two copies: one on GPU/MPS, one on CPU
+model_img = copy.deepcopy(model_full).to(DEVICE)
+model_txt = copy.deepcopy(model_full).to("cpu")
+
+model_img.eval()
+model_txt.eval()
+
 
 ## load the csv of image paths and text caption pairs
 df = pd.read_csv(CSV_PATH)
@@ -49,12 +55,12 @@ for i in tqdm(range(0, len(df), BATCH_SIZE), desc="Embedding batches"):
 
     with torch.no_grad():
         # Run image encoder on GPU/MPS
-        img_emb = model.encode_image(images)
+        img_emb = model_img.encode_image(images)
 
         # Run text encoder on CPU (MPS has a known bug)
-        model_cpu = model.to("cpu")
-        txt_emb = model_cpu.encode_text(texts)
-        model = model.to(DEVICE)
+        
+        txt_emb = model_txt.encode_text(texts)
+        
 
         # Normalize embeddings for cosine similarity
         img_emb /= img_emb.norm(dim=-1, keepdim=True)
