@@ -5,3 +5,4 @@ test.py
 embeddings/
 model building/biotrove_fine_tune.py
 checkpoints/
+tests/

@@ -73,3 +73,60 @@ I think this should be alright, and I may compensate at training time with image
 ##
 
 Fine tuning biotrove clip model on my dataset, taking approx. 12.5 hours
+
+##
+
+Wrote script to embed all my image/text pairs, Inititally it was going to take 10 hours so I learned how to optimize it using batching, autocast and multithreading on the cpu, now its only taking 3.5 hours.
+
+##
+
+Doing some simple tests on my computer with the image embeddings using my newly fine tuned model, embedding images and querying the cosine similarity. Getting spectacular results so far.
+
+One thing I want to do before I load it onto a device is write a script to scrape some info for each of the 2400 species from wikipedia that can be presented to the user if they identify a plant and want more info on it. I also want to compress a couple of pictures that can be used for ID assistance.
+
+##
+
+Ok coming up next, quantizing the embeddings to FP16 to cut down from 800 -> 400mb, convert to a core ML model and load onto my dummy iphone app for testing.
+
+But first I want to build my data lookup with some descriptions of info for each plant that can be pulled on ID.
+
+I had GPT build me a simple scraping script to grab the 'extract' from the wikipedia page of each plant species and add it to my metadata json file. Not a huge amount of text but should be enough to enrich the experience a bit.
+
+##
+
+I want to grab 2 images per plant to compress and load with the model for offline verification. Downloading 2 images per plant, currently. We'll see how big the file sizes are after compression, don't want the app to take up too much space.
+
+##
+
+Quantizing embeddings to FP16 for space purposes, supposed accuracy loss is less than 1% and cuts space cost in half.
+
+Converting model to Coreml for iphone usage
+
+###
+
+When converting the model I converted first to torchscript and then to coreml .mlpackage. Actually went pretty smoothly except for a snag I hit with the trace checker - I had to set 'check_trace=False' here because it was erring out.
+
+traced_model = torch.jit.trace(encoder, dummy, strict=False, check_trace=False)
+
+##
+
+At the point where my whole package is ready for ios but its still a bit bulky:
+
+fp16 embeddings: 700mb
+Quantized coreml model: 170mb
+compressed jpgs for display (2 per plant): 70mb
+json txt data: 20mb
+
+Close to 1gb which I wanted to stay away from.
+I'm going to quantize the embeddings further to int8, losing a bit more accuracy but halving the storage space.
+
+##
+
+After doing this I read about the npz format, did a quick test and this might be the best option for me. Retains fp16 accuracy but shrinks to even less memory than the int8 quantization.
+
+int8: 400mb
+fp16_npz: 370mb
+
+Only snag is that it needs to load into ram on device at run time, will test and see how it goes but this seems promising to me, rather than dequantizing the int8 tensors on the fly meanwhile losing 2% accuracy.
+
+##
