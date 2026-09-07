@@ -2,8 +2,8 @@ import torch
 import numpy as np
 
 #paths
-input_path = "/Volumes/Blue Drive/PlantDexter_v2/data/embeddings/plant_dexter_embeds_fp16.pt"
-output_path = "/Volumes/Blue Drive/PlantDexter_v2/data/embeddings/plant_dexter_embeds_fp16_2.npz"
+input_path = "embeddings/plant_dexter_embeds_fp16.pt"
+output_path = "embeddings/plant_dexter_embeds_fp16.npz"
 
 #load 
 print(f"Loading {input_path} ...")

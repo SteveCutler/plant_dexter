@@ -1,8 +1,37 @@
+# Local datasets and generated artifacts
 Full_Ontario_Species_list.xlsx
-test.py
 /data/
+/PlantImages/
+/artifacts/
 *.csv
 embeddings/
-model building/biotrove_fine_tune.py
 checkpoints/
-tests/
+*.pt
+*.pth
+*.npz
+*.npy
+*.mlpackage/
+*.mlmodel
+*.mlmodelc/
+
+# Local experiments and test images
+test.py
+tempCodeRunnerFile.py
+tests/**/*.jpg
+tests/**/*.jpeg
+tests/**/*.png
+tests/**/*.webp
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Editor, system, and local environment files
+.vscode/
+.DS_Store
+.env
+.env.*
+!.env.example

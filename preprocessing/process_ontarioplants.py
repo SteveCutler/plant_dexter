@@ -1,5 +1,5 @@
 import pandas as pd
-df = pd.read_csv("OntarioPlants.csv")
+df = pd.read_csv("data/OntarioPlants.csv")
 
 
 ### FILTERING DATA TO KEEP ONLY COMMON TYPES OF VASCULAR PLANTS
@@ -33,5 +33,5 @@ ontario_native = df_native[keep_cols].drop_duplicates()
 print("Remaining species:", len(ontario_native))
 
 ## Result: 3208
-ontario_native.to_csv("ontario_native_filtered.csv", index=False)
-print("Exported succesfully!")
+ontario_native.to_csv("data/ontario_native_filtered.csv", index=False)
+print("Exported successfully!")

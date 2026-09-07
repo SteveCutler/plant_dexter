@@ -4,7 +4,6 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 import open_clip
-import numpy as np
 
 # -----------------------------
 # Config
@@ -18,7 +17,8 @@ device = "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is
 # Load model + tokenizer
 # -----------------------------
 print(f"🚀 Loading model on {device}")
-model, preprocess, _ = open_clip.create_model_and_transforms(model_name)
+# Use the same inference transform as reference embeddings and deployment.
+model, _, preprocess = open_clip.create_model_and_transforms(model_name)
 tokenizer = open_clip.get_tokenizer(model_name)
 model = model.to(device)
 model.eval()
