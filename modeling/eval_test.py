@@ -1,15 +1,14 @@
 import torch
 from PIL import Image
 import open_clip
-from torchvision import transforms
-import numpy as np
 import os
 
 ## SETUP
 model_name = "hf-hub:BGLab/BioTrove-CLIP"
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
-model, preprocess, _ = open_clip.create_model_and_transforms(model_name)
+# Use the same inference transform as reference embeddings and deployment.
+model, _, preprocess = open_clip.create_model_and_transforms(model_name)
 tokenizer = open_clip.get_tokenizer(model_name)
 
 # Load fine tuned weights

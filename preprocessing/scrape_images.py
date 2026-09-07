@@ -5,7 +5,7 @@ import time
 from urllib.parse import quote
 
 ## config
-DATA_ROOT = "/Volumes/Blue Drive/PlantDexter_v2/PlantImages"
+DATA_ROOT = os.environ.get("PLANTDEXTER_IMAGE_ROOT", "data/PlantImages")
 CSV_PATH = "data/low_count_species.csv" 
 TARGET_COUNT = 100               
 MAX_PER_SPECIES = 500            

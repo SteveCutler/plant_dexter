@@ -40,8 +40,10 @@ class PlantDataset(Dataset):
         img_path = row["image_path"]
         text_prompt = row["text_prompt"]
 
-        # parse plant name from prompt
-        plant_name = " ".join(text_prompt.split()[3:]).strip().lower().capitalize()
+        # New pairs carry the name explicitly; retain support for the original CSV.
+        plant_name = row.get("scientificName")
+        if pd.isna(plant_name):
+            plant_name = " ".join(text_prompt.split()[3:]).strip().lower().capitalize()
 
         # try to open image
         try:
@@ -49,7 +51,7 @@ class PlantDataset(Dataset):
         except Exception:
             return None  # skip broken images
 
-        return img, text_prompt, plant_name
+        return img, text_prompt, plant_name, img_path
 
 
 if __name__=="__main__":
@@ -60,7 +62,8 @@ if __name__=="__main__":
     os.makedirs(out_dir, exist_ok=True)
 
     ## load model
-    model, preprocess, _ = open_clip.create_model_and_transforms(model_name)
+    # Reference vectors use the same deterministic inference transform as deployment.
+    model, _, preprocess = open_clip.create_model_and_transforms(model_name)
     tokenizer = open_clip.get_tokenizer(model_name)
 
     ## load weights from fine tuning
@@ -96,7 +99,7 @@ if __name__=="__main__":
 
     image_embeddings, text_embeddings = [], []
     metadata = {}
-    count = 1
+    embedding_rows = []
     ## encoding loop
 
     #check batch
@@ -105,7 +108,7 @@ if __name__=="__main__":
             continue
 
         #unpack batch
-        imgs, texts, plant_names = zip(*batch)
+        imgs, texts, plant_names, image_paths = zip(*batch)
 
         #tensorize/tokenize
         imgs_t = torch.stack([preprocess(i) for i in imgs]).to(device)
@@ -126,8 +129,16 @@ if __name__=="__main__":
 
 
         ## add metadata to dict (overwrite if exists already)
-        for name in plant_names:
+        for name, image_path in zip(plant_names, image_paths):
             info_row = info_lookup.get(name)
+            # Append for every encoded image, including those without extra metadata.
+            # Row N describes row N in both saved embedding matrices.
+            embedding_rows.append({
+                "embedding_index": len(embedding_rows),
+                "scientificName": name,
+                "image_path": image_path,
+                "metadata_key": name if info_row is not None else None,
+            })
             if info_row is None:
                 continue
             metadata[name] = {
@@ -142,22 +153,31 @@ if __name__=="__main__":
     ## SAVE ##
     print("Embeddings completed, saving...")
 
+    if not image_embeddings:
+        raise ValueError("No readable images were available to embed.")
     image_embeddings = torch.cat(image_embeddings)
     text_embeddings = torch.cat(text_embeddings)
+    if not (len(image_embeddings) == len(text_embeddings) == len(embedding_rows)):
+        raise ValueError("Embedding matrices and row mapping have different lengths.")
 
 
     #save embeddings together
     torch.save({
         "image_embeddings": image_embeddings,
         "text_embeddings": text_embeddings
-    }, "embeddings/plant_dexter_embeds.pt")
+    }, os.path.join(out_dir, "plant_dexter_embeds.pt"))
+
+    # Keep this sidecar with every FP16/INT8/NPZ representation of these matrices.
+    with open(os.path.join(out_dir, "plant_dexter_embedding_rows.jsonl"), "w", encoding="utf-8") as f:
+        for row in embedding_rows:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
     print("saved embeddings")
 
     ## save metadat as dict in json
 
-    with open("embeddings/plant_dexter_metadata.json", "w") as f:
+    with open(os.path.join(out_dir, "plant_dexter_metadata.json"), "w") as f:
         json.dump(metadata, f, indent = 2)
 
     print("saved metadata")

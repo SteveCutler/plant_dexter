@@ -7,8 +7,8 @@ import hashlib
 import time
 
 ## controls
-CSV_PATH = "ontario_biotrove_matches.csv"
-OUTPUT_DIR = "/Volumes/Blue Drive/PlantDexter_v2/PlantImages"
+CSV_PATH = "data/ontario_biotrove_matches.csv"
+OUTPUT_DIR = os.environ.get("PLANTDEXTER_IMAGE_ROOT", "data/PlantImages")
 MAX_IMAGES_PER_SPECIES = 200
 MAX_THREADS = 16  
 RETRY_LIMIT = 3

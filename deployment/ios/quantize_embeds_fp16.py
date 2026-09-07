@@ -1,10 +1,8 @@
 import torch
-import numpy as np
-import os
 
 ## config
-input_path = "/Volumes/Blue Drive/PlantDexter_v2/data/embeddings/plant_dexter_embeds.pt" 
-output_path = "/Volumes/Blue Drive/PlantDexter_v2/data/embeddings/plant_dexter_embeds_fp16.pt" 
+input_path = "embeddings/plant_dexter_embeds.pt"
+output_path = "embeddings/plant_dexter_embeds_fp16.pt"
 
 ## load
 if input_path.endswith(".pt"):
@@ -21,5 +19,4 @@ if input_path.endswith(".pt"):
 
 
 torch.save(emb, output_path, _use_new_zipfile_serialization=True)
-
 

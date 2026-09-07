@@ -3,7 +3,7 @@ import pandas as pd
 from collections import Counter
 
 
-DATA_ROOT = "/Volumes/Blue Drive/PlantDexter_v2/PlantImages"  
+DATA_ROOT = os.environ.get("PLANTDEXTER_IMAGE_ROOT", "data/PlantImages")
 THRESHOLD = 100             
 
 def count_images(root):
@@ -32,9 +32,9 @@ if __name__ == "__main__":
 
     ## Filter for low-count species
     low_df = df[df["image_count"] < THRESHOLD]
+    os.makedirs("data", exist_ok=True)
     low_df.to_csv("data/low_count_species.csv", index=False)
 
     print(f"✅ Total species: {len(df)}")
     print(f"⚠️  Species below {THRESHOLD} images: {len(low_df)}")
     low_df.head(n=21)
-

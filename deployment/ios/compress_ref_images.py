@@ -1,8 +1,8 @@
 from PIL import Image
 import os
 
-input_dir = "/Volumes/Blue Drive/PlantDexter_v2/data/plant_ref_images"
-output_dir = "/Volumes/Blue Drive/PlantDexter_v2/data/plant_ref_images_webp"
+input_dir = "data/plant_images"
+output_dir = "data/plant_images_webp"
 os.makedirs(output_dir, exist_ok=True)
 
 for root, _, files in os.walk(input_dir):
